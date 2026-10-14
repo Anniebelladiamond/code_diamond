@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>B1 Hostel Attendance – Kabba NYSC Camp</title>
+<style>
+:root{--bg:#f3f7f4;--card:#fff;--ink:#14281d;--mut:#5b6b61;--line:#d9e3dc;--pri:#0f7a3d;--pri2:#e1f2e8;--abs:#c0392b;--abs2:#fbe7e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1511;--card:#17211b;--ink:#e8f1ea;--mut:#9bb0a2;--line:#2a392f;--pri:#3ecf79;--pri2:#173525;--abs:#ff7b6b;--abs2:#3a1d1a}}
+:root[data-theme="dark"]{--bg:#0e1511;--card:#17211b;--ink:#e8f1ea;--mut:#9bb0a2;--line:#2a392f;--pri:#3ecf79;--pri2:#173525;--abs:#ff7b6b;--abs2:#3a1d1a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--pri);color:#fff;padding:14px 16px}
+header h1{margin:0;font-size:18px}header p{margin:2px 0 0;font-size:13px;opacity:.9}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bar .sp{flex:1}
+button,input{font:inherit;color:inherit}
+button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 11px;cursor:pointer}
+button:hover{border-color:var(--pri)}button:disabled{opacity:.4;cursor:not-allowed}
+button.pri{background:var(--pri);color:#fff;border-color:var(--pri)}
+button.tab.on{background:var(--pri2);border-color:var(--pri);font-weight:600}
+input{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 10px}
+main{max-width:760px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--mut)}
+.row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.row:last-child{border:0}.nm{flex:1;min-width:140px;font-weight:600}.nm small{display:block;font-weight:400;color:var(--mut)}
+.p.on{background:var(--pri);color:#fff;border-color:var(--pri)}.a.on{background:var(--abs);color:#fff;border-color:var(--abs)}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px}.tp{background:var(--pri2);color:var(--pri)}.ta{background:var(--abs2);color:var(--abs)}.tn{background:var(--line);color:var(--mut)}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.note{background:var(--abs2);color:var(--abs);padding:10px 12px;border-radius:10px;margin-bottom:12px;font-size:14px}
+.info{background:var(--pri2);color:var(--ink)}
+.hide{display:none}
+@media print{.bar,header button,.noprint{display:none!important}body{background:#fff;color:#000}}
+</style></head><body>
+<header><h1>B1 Hostel Attendance</h1><p>Female Corps Members · Kabba NYSC Orientation Camp</p></header>
+<div class="bar">
+  <button id="prev" title="Previous day">◀</button>
+  <input type="date" id="date">
+  <button id="next" title="Next day">▶</button>
+  <button id="today">Today</button>
+  <span class="sp"></span>
+  <button class="tab on" data-t="roll">Roll call</button>
+  <button class="tab" data-t="rec">Records</button>
+  <button class="tab" data-t="mng">Manage</button>
+</div>
+<main>
+  <div id="msg"></div>
+  <section id="roll">
+    <div class="stats" id="stats"></div>
+    <div class="card">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px" class="noprint">
+        <button class="adm" id="allP">✔ All present</button>
+        <button class="adm" id="allA">✖ All absent</button>
+        <button class="adm" id="clr">Clear day</button>
+        <button id="prt">Print</button>
+      </div>
+      <div id="list"></div>
+    </div>
+  </section>
+  <section id="rec" class="hide">
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b>Attendance summary</b><button id="csv">⬇ Export CSV</button></div>
+      <div class="scroll" id="sum"></div></div>
+    <div class="card"><b>Daily log</b><div class="scroll" id="log" style="margin-top:6px"></div></div>
+  </section>
+  <section id="mng" class="hide">
+    <div class="card adm"><b>Add camper</b>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        <input id="nn" placeholder="Full name" style="flex:2;min-width:150px">
+        <input id="nc" placeholder="Call-up / state code (optional)" style="flex:2;min-width:150px">
+        <button class="pri" id="add">Add</button></div></div>
+    <div class="card"><b>Campers</b><div id="mlist"></div></div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+let db=null,admin=false,campers=[],att={},date=iso(new Date()),tab="roll";
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=d=>new Date(d+"T12:00").toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+
+function msg(){
+  let h="";
+  if(!db)h='<div class="note">Sign in to claude.ai to load and save attendance records.</div>';
+  else if(!admin)h='<div class="note info">View-only access. Only the hostel admin can mark attendance or edit campers.</div>';
+  $("#msg").innerHTML=h;
+  document.querySelectorAll(".adm").forEach(e=>{if(e.tagName==="BUTTON")e.disabled=!admin;else e.classList.toggle("hide",!admin)});
+}
+function render(){
+  $("#date").value=date;msg();
+  const m=att[date]||{};
+  const P=campers.filter(c=>m[c.id]==="P").length,A=campers.filter(c=>m[c.id]==="A").length;
+  $("#stats").innerHTML=[["Total",campers.length],["Present",P],["Absent",A],["Unmarked",campers.length-P-A]].map(x=>`<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("");
+  $("#list").innerHTML=campers.length?campers.map(c=>`<div class="row"><div class="nm">${esc(c.name)}<small>${esc(c.callup||"")}</small></div>
+    <button class="p ${m[c.id]==="P"?"on":""}" data-id="${c.id}" data-s="P" ${admin?"":"disabled"}>Present</button>
+    <button class="a ${m[c.id]==="A"?"on":""}" data-id="${c.id}" data-s="A" ${admin?"":"disabled"}>Absent</button></div>`).join(""):'<p style="color:var(--mut)">No campers yet. Add them under Manage.</p>';
+  $("#mlist").innerHTML=campers.map(c=>`<div class="row"><div class="nm">${esc(c.name)}<small>${esc(c.callup||"")}</small></div>
+    ${admin?`<button data-ren="${c.id}">Edit</button><button data-del="${c.id}">Remove</button>`:""}</div>`).join("");
+  const dates=Object.keys(att).sort().reverse();
+  $("#sum").innerHTML=`<table><tr><th>Camper</th><th>Present</th><th>Absent</th><th>Rate</th></tr>${campers.map(c=>{
+    let p=0,a=0;dates.forEach(d=>{const s=(att[d]||{})[c.id];if(s==="P")p++;if(s==="A")a++});
+    return `<tr><td>${esc(c.name)}</td><td>${p}</td><td>${a}</td><td>${p+a?Math.round(100*p/(p+a))+"%":"–"}</td></tr>`}).join("")}</table>`;
+  $("#log").innerHTML=dates.length?`<table><tr><th>Date</th>${campers.map(c=>`<th>${esc(c.name.split(" ")[0])}</th>`).join("")}</tr>${dates.map(d=>`<tr><td>${fmt(d)}</td>${campers.map(c=>{const s=(att[d]||{})[c.id];return `<td><span class="tag ${s==="P"?"tp":s==="A"?"ta":"tn"}">${s==="P"?"Present":s==="A"?"Absent":"–"}</span></td>`}).join("")}</tr>`).join("")}</table>`:'<p style="color:var(--mut)">No records yet.</p>';
+}
+async function save(marks){
+  att[date]=marks;render();
+  try{await db.doc("attendance/"+date).set({marks,updatedAt:Date.now()})}catch(e){alert("Could not save: "+(e.message||e.code))}
+}
+function setTab(t){tab=t;["roll","rec","mng"].forEach(x=>$("#"+x).classList.toggle("hide",x!==t));document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===t))}
+function shift(n){const d=new Date(date+"T12:00");d.setDate(d.getDate()+n);date=iso(d);render()}
+
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+$("#prev").onclick=()=>shift(-1);$("#next").onclick=()=>shift(1);$("#today").onclick=()=>{date=iso(new Date());render()};
+$("#date").onchange=e=>{if(e.target.value){date=e.target.value;render()}};
+$("#prt").onclick=()=>window.print();
+$("#list").onclick=e=>{const b=e.target.closest("button[data-id]");if(!b||!admin)return;
+  const m={...(att[date]||{})};if(m[b.dataset.id]===b.dataset.s)delete m[b.dataset.id];else m[b.dataset.id]=b.dataset.s;save(m)};
+$("#allP").onclick=()=>{const m={};campers.forEach(c=>m[c.id]="P");save(m)};
+$("#allA").onclick=()=>{const m={};campers.forEach(c=>m[c.id]="A");save(m)};
+$("#clr").onclick=()=>{if(confirm("Clear all marks for "+fmt(date)+"?"))save({})};
+$("#add").onclick=async()=>{const n=$("#nn").value.trim();if(!n||!admin)return;
+  try{await db.collection("campers").add({name:n,callup:$("#nc").value.trim(),order:Date.now()});$("#nn").value=$("#nc").value=""}catch(e){alert("Could not add: "+(e.message||e.code))}};
+$("#mlist").onclick=async e=>{
+  const d=e.target.closest("[data-del]"),r=e.target.closest("[data-ren]");
+  try{
+    if(d){const c=campers.find(x=>x.id===d.dataset.del);if(confirm("Remove "+c.name+"? Past records keep their marks but the name is hidden."))await db.doc("campers/"+c.id).delete()}
+    if(r){const c=campers.find(x=>x.id===r.dataset.ren);const n=prompt("Camper name",c.name);if(n&&n.trim()){const k=prompt("Call-up / state code",c.callup||"");await db.doc("campers/"+c.id).update({name:n.trim(),callup:(k||"").trim()})}}
+  }catch(err){alert("Failed: "+(err.message||err.code))}};
+$("#csv").onclick=async()=>{
+  const dates=Object.keys(att).sort();
+  const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const rows=[["Date",...campers.map(c=>c.name)].map(q).join(",")];
+  dates.forEach(d=>rows.push([d,...campers.map(c=>({P:"Present",A:"Absent"}[(att[d]||{})[c.id]]||""))].map(q).join(",")));
+  try{const dl=await claude.use("downloads");if(!dl)throw 0;await dl.save({filename:"B1-hostel-attendance.csv",data:rows.join("\n")})}
+  catch(e){if(e&&e.code==="declined")return;alert("Download is not available here. Use Print instead.")}
+};
+render();
+(async()=>{
+  try{
+    const user=await claude.use("user");admin=!!user&&(user.canEdit()||user.isOwner());
+    db=await claude.use("db");
+  }catch(e){db=null}
+  render();if(!db)return;
+  db.collection("campers").onSnapshot(s=>{campers=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));render()});
+  db.collection("attendance").onSnapshot(s=>{att={};s.docs.forEach(d=>att[d.id]=(d.data()||{}).marks||{});render()});
+})();
+</script></body></html>
